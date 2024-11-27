@@ -48,6 +48,40 @@ DataChain Africa is a blockchain-based solution built on the Stacks ecosystem th
 - [ ] Phase 5: Testing and security audits
 - [ ] Phase 6: Beta launch
 
+## Project Structure
+
+```
+datachain-africa/
+├── contracts/
+│   ├── data-tracking.clar       # Core data tracking contract
+│   ├── billing.clar             # Billing and payment logic
+│   ├── marketplace.clar         # P2P data trading functionality
+│   └── traits/
+│       └── data-traits.clar     # Shared contract traits
+├── tests/
+│   ├── data-tracking_test.ts    # Unit tests for data tracking
+│   ├── billing_test.ts          # Unit tests for billing
+│   └── marketplace_test.ts      # Unit tests for marketplace
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── services/
+│   └── public/
+├── scripts/
+│   ├── deploy.ts                # Deployment scripts
+│   └── setup-local.ts           # Local development setup
+├── lib/
+│   └── carrier-integration/     # Mobile carrier integration code
+├── docs/
+│   ├── api.md
+│   └── smart-contracts.md
+├── .gitignore
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
 ## Contributing
 We welcome contributions from the community! Please read our contributing guidelines before submitting pull requests.
 
