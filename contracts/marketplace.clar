@@ -105,3 +105,45 @@
                     }
                 ))
             (ok true))))
+
+(define-public (purchase-listing 
+(listing-id uint) 
+(tracking-contract <data-tracking-trait>))
+(let
+    ((listing (unwrap! (map-get? data-listings { listing-id: listing-id })
+                      (err err-invalid-listing))))
+    (begin
+        (asserts! (get is-active listing) (err err-listing-expired))
+        (asserts! (<= block-height (get expiry listing)) (err err-listing-expired))
+
+        ;; Process payment with proper error handling
+        (unwrap! (process-payment (get price listing) tx-sender (get seller listing))
+                (err err-insufficient-funds))
+
+        ;; Update listing status
+        (map-set data-listings
+            { listing-id: listing-id }
+            {
+                seller: (get seller listing),
+                data-amount: (get data-amount listing),
+                price: (get price listing),
+                expiry: (get expiry listing),
+                is-active: false
+            }
+        )
+
+        ;; Update seller stats
+        (let ((seller-stats (unwrap! (map-get? user-sales { user: (get seller listing) })
+                                   (err err-not-seller))))
+            (map-set user-sales
+                { user: (get seller listing) }
+                {
+                    total-sales: (+ (get total-sales seller-stats) u1),
+                    total-data-sold: (+ (get total-data-sold seller-stats) 
+                                      (get data-amount listing)),
+                    active-listings: (- (get active-listings seller-stats) u1)
+                }
+            ))
+
+        (ok true))))
+
