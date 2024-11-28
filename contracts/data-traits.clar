@@ -1,4 +1,4 @@
-(define-trait data-tracta traitking-trait
+(define-trait data-tracking-trait
     (
         ;; Get plan details
         (get-plan-details (uint) (response {
