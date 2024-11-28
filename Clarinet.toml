@@ -6,8 +6,14 @@ telemetry = false
 requirements = []
 cache_dir = "/home/runner/DataChainAfrica/DataChainAfrica/./.requirements"
 boot_contracts = ["pox", "costs-v2", "bns"]
+[contracts.billing]
+path = "contracts/billing.clar"
+
 [contracts.data-tracking]
 path = "contracts/data-tracking.clar"
+
+[contracts.data-traits]
+path = "contracts/data-traits.clar"
 
 [repl]
 costs_version = 2
