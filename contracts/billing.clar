@@ -35,6 +35,40 @@
 
 (define-data-var payment-counter uint u0)
 
+;; Helper function to process subscription payment
+(define-private (process-subscription-payment (price uint) (sender principal))
+    (stx-transfer? price sender (as-contract tx-sender)))
+
+;; Helper function to record subscription
+(define-private (record-subscription 
+    (user principal) 
+    (plan-id uint) 
+    (price uint)
+    (payment-id uint))
+    (begin
+        (map-set user-subscriptions
+            { user: user }
+            {
+                current-plan-id: plan-id,
+                last-payment: block-height,
+                payment-due: u0,
+                payment-status: true,
+                subscription-start: block-height,
+                total-payments: price
+            }
+        )
+        
+        (map-set payment-history
+            { payment-id: payment-id }
+            {
+                user: user,
+                amount: price,
+                timestamp: block-height,
+                plan-id: plan-id,
+                status: true
+            }
+        )))
+
 ;; Read-only functions
 (define-read-only (get-subscription (user principal))
     (map-get? user-subscriptions { user: user }))
