@@ -118,7 +118,7 @@
                     (var-set payment-counter payment-id)
                     (ok true))))))
 
-;; Read-only functions
+;; Read-only functions remain unchanged
 (define-read-only (get-subscription (user principal))
     (map-get? user-subscriptions { user: user }))
 
