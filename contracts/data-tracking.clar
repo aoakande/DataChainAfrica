@@ -3,9 +3,20 @@
 
 ;; Constants
 (define-constant contract-owner tx-sender)
+
+;; Additional Constants for Plan Types
+(define-constant plan-daily u1)
+(define-constant plan-weekly u2)
+(define-constant plan-monthly u3)
+
 (define-constant err-owner-only (err u100))
 (define-constant err-invalid-caller (err u101))
 (define-constant err-invalid-data (err u102))
+
+;; Additional Error Codes
+(define-constant err-expired-plan (err u103))
+(define-constant err-plan-exists (err u104))
+(define-constant err-invalid-plan (err u105))
 
 ;; Data Variables
 (define-map user-data-usage
