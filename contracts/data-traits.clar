@@ -1,6 +1,6 @@
 (define-trait data-tracking-trait
     (
-        ;; Existing functions
+        ;; Get plan details
         (get-plan-details (uint) (response {
             data-amount: uint,
             duration-blocks: uint,
@@ -8,8 +8,10 @@
             is-active: bool
         } uint))
 
+        ;; Subscribe to plan
         (subscribe-to-plan (uint bool) (response bool uint))
 
+        ;; Get usage details
         (get-usage (principal) (response {
             total-data-used: uint,
             last-updated: uint,
@@ -34,7 +36,6 @@
     )
 )
 
-;; New trait for marketplace functionality
 (define-trait marketplace-trait
     (
         (transfer-data (principal principal uint) (response bool uint))
