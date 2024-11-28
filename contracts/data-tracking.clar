@@ -69,6 +69,20 @@
     )
 )
 
+;; Event Tracking System
+(define-data-var event-counter uint u0)
+
+(define-map usage-events
+    { event-id: uint }
+    {
+        user: principal,
+        usage-amount: uint,
+        timestamp: uint,
+        carrier: principal,
+        remaining-balance: uint
+    }
+)
+
 ;; Record data usage - can only be called by authorized carriers
 (define-public (record-usage (user principal) (usage uint))
     (let
