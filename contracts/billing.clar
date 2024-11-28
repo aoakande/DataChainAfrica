@@ -91,6 +91,33 @@
                         (err err-invalid-plan))
                 (ok true)))))
 
+;; Process renewal payment
+(define-public (process-renewal-payment (user principal) (tracking-contract <data-tracking-trait>))
+    (let 
+        ((subscription (unwrap! (map-get? user-subscriptions { user: user })
+                               (err err-no-subscription))))
+        (let 
+            ((plan-details (unwrap! (contract-call? tracking-contract get-plan-details 
+                                   (get current-plan-id subscription))
+                                   (err err-invalid-plan))))
+            (let
+                ((payment-id (+ (var-get payment-counter) u1)))
+                (begin
+                    ;; Check payment status
+                    (asserts! (not (get payment-status subscription)) 
+                             (err err-payment-failed))
+                    ;; Process payment
+                    (unwrap! (process-subscription-payment (get price plan-details) user)
+                            (err err-payment-failed))
+                    ;; Record payment
+                    (record-subscription user 
+                                       (get current-plan-id subscription)
+                                       (get price plan-details)
+                                       payment-id)
+                    ;; Update counter
+                    (var-set payment-counter payment-id)
+                    (ok true))))))
+
 ;; Read-only functions
 (define-read-only (get-subscription (user principal))
     (map-get? user-subscriptions { user: user }))
