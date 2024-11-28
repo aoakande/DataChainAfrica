@@ -50,20 +50,17 @@
 
 ;; Public Functions
 
-;; Initialize user data plan
-(define-public (initialize-data-plan (initial-data uint) (expiry-blocks uint))
-    (let
-        (
-            (user tx-sender)
-            (current-height block-height)
-        )
-        (ok (map-set user-data-usage
-            { user: user }
+;; Initialize or update a data plan type
+(define-public (set-data-plan (plan-id uint) (data-amount uint) (duration-blocks uint) (price uint))
+    (begin
+        (asserts! (is-eq tx-sender contract-owner) (err err-owner-only))
+        (ok (map-set data-plans
+            { plan-id: plan-id }
             {
-                total-data-used: u0,
-                last-updated: current-height,
-                data-balance: initial-data,
-                plan-expiry: (+ current-height expiry-blocks)
+                data-amount: data-amount,
+                duration-blocks: duration-blocks,
+                price: price,
+                is-active: true
             }
         ))
     )
@@ -83,24 +80,43 @@
     }
 )
 
-;; Record data usage - can only be called by authorized carriers
+;; Record data usage with event logging
 (define-public (record-usage (user principal) (usage uint))
     (let
         (
             (carrier tx-sender)
             (is-authorized (default-to { is-authorized: false } (map-get? authorized-carriers { carrier: carrier })))
             (current-data (unwrap! (map-get? user-data-usage { user: user }) (err err-invalid-data)))
+            (event-id (+ (var-get event-counter) u1))
         )
         (asserts! (get is-authorized is-authorized) (err err-invalid-caller))
         (asserts! (<= usage (get data-balance current-data)) (err err-invalid-data))
-
-        (ok (map-set user-data-usage
+        (asserts! (< block-height (get plan-expiry current-data)) (err err-expired-plan))
+        
+        ;; Update usage data
+        (map-set user-data-usage
             { user: user }
             {
                 total-data-used: (+ (get total-data-used current-data) usage),
                 last-updated: block-height,
                 data-balance: (- (get data-balance current-data) usage),
-                plan-expiry: (get plan-expiry current-data)
+                plan-expiry: (get plan-expiry current-data),
+                plan-type: (get plan-type current-data),
+                auto-renew: (get auto-renew current-data),
+                rollover-data: (get rollover-data current-data)
+            }
+        )
+        
+        ;; Log usage event
+        (var-set event-counter event-id)
+        (ok (map-set usage-events
+            { event-id: event-id }
+            {
+                user: user,
+                usage-amount: usage,
+                timestamp: block-height,
+                carrier: carrier,
+                remaining-balance: (- (get data-balance current-data) usage)
             }
         ))
     )
