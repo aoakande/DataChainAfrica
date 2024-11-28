@@ -18,14 +18,28 @@
 (define-constant err-plan-exists (err u104))
 (define-constant err-invalid-plan (err u105))
 
-;; Data Variables
+;; Enhanced Data Structure for User Data Usage
 (define-map user-data-usage
     { user: principal }
     {
         total-data-used: uint,      ;; in megabytes
         last-updated: uint,         ;; blockchain height
         data-balance: uint,         ;; remaining data in megabytes
-        plan-expiry: uint          ;; expiry block height
+        plan-expiry: uint,          ;; expiry block height
+        plan-type: uint,            ;; type of plan (daily/weekly/monthly)
+        auto-renew: bool,           ;; auto renewal setting
+        rollover-data: uint         ;; unused data from previous period
+    }
+)
+
+;; Data Plans Configuration
+(define-map data-plans
+    { plan-id: uint }
+    {
+        data-amount: uint,          ;; in megabytes
+        duration-blocks: uint,      ;; plan duration in blocks
+        price: uint,                ;; plan price in microSTX
+        is-active: bool             ;; whether plan is currently offered
     }
 )
 
