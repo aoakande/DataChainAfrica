@@ -35,9 +35,23 @@
 
 (define-data-var payment-counter uint u0)
 
-;; Basic read-only functions
+;; Read-only functions
 (define-read-only (get-subscription (user principal))
     (map-get? user-subscriptions { user: user }))
 
 (define-read-only (get-payment (payment-id uint))
     (map-get? payment-history { payment-id: payment-id }))
+
+(define-read-only (is-payment-due (user principal))
+    (let
+        ((subscription (default-to 
+            {
+                current-plan-id: u0,
+                last-payment: u0,
+                payment-due: u0,
+                payment-status: true,
+                subscription-start: u0,
+                total-payments: u0
+            }
+            (map-get? user-subscriptions { user: user }))))
+        (not (get payment-status subscription))))
