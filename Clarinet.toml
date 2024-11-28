@@ -15,6 +15,9 @@ path = "contracts/data-tracking.clar"
 [contracts.data-traits]
 path = "contracts/data-traits.clar"
 
+[contracts.marketplace]
+path = "contracts/marketplace.clar"
+
 [repl]
 costs_version = 2
 parser_version = 2

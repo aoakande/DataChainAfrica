@@ -21,5 +21,25 @@
             auto-renew: bool,
             rollover-data: uint
         } uint))
+
+        ;; New functions for enhanced features
+        (update-plan (uint uint uint uint) (response bool uint))
+
+        (get-usage-history (principal uint) (response {
+            usage-amount: uint,
+            timestamp: uint,
+            carrier: principal,
+            remaining-balance: uint
+        } uint))
+
+        (check-plan-validity (principal) (response bool uint))
+    )
+)
+
+(define-trait marketplace-trait
+    (
+        (transfer-data (principal principal uint) (response bool uint))
+        (list-data-for-sale (principal uint uint) (response bool uint))
+        (buy-listed-data (uint) (response bool uint))
     )
 )
