@@ -147,3 +147,24 @@
 
         (ok true))))
 
+;; Read-only Functions
+(define-read-only (get-listing (listing-id uint))
+    (map-get? data-listings { listing-id: listing-id }))
+
+(define-read-only (get-user-sales (user principal))
+    (map-get? user-sales { user: user }))
+
+(define-read-only (get-listing-count)
+    (var-get listing-counter))
+
+(define-read-only (is-listing-active (listing-id uint))
+    (match (map-get? data-listings { listing-id: listing-id })
+        listing (and (get is-active listing)
+                    (<= block-height (get expiry listing)))
+        false))
+
+(define-read-only (get-user-active-listings (user principal))
+    (let ((sales-data (default-to
+            { total-sales: u0, total-data-sold: u0, active-listings: u0 }
+            (map-get? user-sales { user: user }))))
+        (get active-listings sales-data)))
