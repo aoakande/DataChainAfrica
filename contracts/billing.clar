@@ -1,3 +1,5 @@
+;; billing.clar
+
 ;; Import trait
 (use-trait data-tracking-trait .data-traits.data-tracking-trait)
 
@@ -68,6 +70,26 @@
                 status: true
             }
         )))
+
+;; Public function to subscribe and pay
+(define-public (subscribe-and-pay (plan-id uint) (tracking-contract <data-tracking-trait>))
+    (let 
+        ((plan-details (unwrap! (contract-call? tracking-contract get-plan-details plan-id) 
+                               (err err-invalid-plan))))
+        (let
+            ((payment-id (+ (var-get payment-counter) u1)))
+            (begin
+                ;; Process payment
+                (unwrap! (process-subscription-payment (get price plan-details) tx-sender)
+                        (err err-payment-failed))
+                ;; Record subscription
+                (record-subscription tx-sender plan-id (get price plan-details) payment-id)
+                ;; Update counter
+                (var-set payment-counter payment-id)
+                ;; Subscribe in tracking contract
+                (unwrap! (contract-call? tracking-contract subscribe-to-plan plan-id true)
+                        (err err-invalid-plan))
+                (ok true)))))
 
 ;; Read-only functions
 (define-read-only (get-subscription (user principal))
