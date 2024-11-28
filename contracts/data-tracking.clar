@@ -133,6 +133,34 @@
     )
 )
 
+;; Subscribe to a data plan
+(define-public (subscribe-to-plan (plan-id uint) (auto-renew bool))
+    (let
+        (
+            (user tx-sender)
+            (plan (unwrap! (map-get? data-plans { plan-id: plan-id }) (err err-invalid-plan)))
+            (current-usage (map-get? user-data-usage { user: user }))
+            (rollover-amount (if (is-some current-usage)
+                (get rollover-data (unwrap-panic current-usage))
+                u0))
+        )
+        (asserts! (get is-active plan) (err err-invalid-plan))
+
+        (ok (map-set user-data-usage
+            { user: user }
+            {
+                total-data-used: u0,
+                last-updated: block-height,
+                data-balance: (+ (get data-amount plan) rollover-amount),
+                plan-expiry: (+ block-height (get duration-blocks plan)),
+                plan-type: plan-id,
+                auto-renew: auto-renew,
+                rollover-data: u0
+            }
+        ))
+    )
+)
+
 ;; Read-only functions
 
 ;; Get user's current data usage
